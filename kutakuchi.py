@@ -51,7 +51,7 @@ def random_expression(depth=0, max_depth=5):
     return op(left, right)
 
 # Diff styles of eq gens
-def polynominal_expression():
+def polynomial_expression():
     return sum(rand_coeff() * random.choice(variables)**random.randint(1, 6) for _ in range(random.randint(3, 6)))
 
 def trigonometric_expression():
@@ -65,8 +65,8 @@ def exponential_log_expression():
     return expr
 
 def rational_expression():
-    num = polynominal_expression() + trigonometric_expression()
-    den = polynominal_expression() + (rand_coeff() or 1)
+    num = polynomial_expression() + trigonometric_expression()
+    den = polynomial_expression() + (rand_coeff() or 1)
     return num / den
 
 def nested_transcendental_expression():
@@ -77,3 +77,166 @@ def nested_transcendental_expression():
 def piecewise_expression():
     var = random.choice(variables)
     return sp.Piecewise((var**2, var < 0), (sp.sin(var), var >= 0))
+
+def differential_expression():
+    var = random.choice(variables)
+    f = sp.Function('f')(var)
+    return sp.diff(f, var, random.randint(1, 3))
+
+def integral_expression():
+    var = random.choice(variables)
+    return sp.integrate(random.choice([sp.sin(var), sp.exp(var), var**2]), (var, 0, random.randint(1, 5)))
+
+def mixed_expression():
+    return random_expression(max_depth=4)
+
+# Map style to func
+styles = {
+    "polynomial": polynomial_expression,
+    "trigonometric": trigonometric_expression,
+    "exponential_log": exponential_log_expression,
+    "rational": rational_expression,
+    "nested_transcendental": nested_transcendental_expression,
+    "piecewise": piecewise_expression,
+    "differential": differential_expression,
+    "integral": integral_expression,
+    "mixed": mixed_expression,
+    "random": lambda: random.choice([
+        polynomial_expression,
+        trigonometric_expression,
+        exponential_log_expression,
+        rational_expression,
+        nested_transcendental_expression,
+        piecewise_expression,
+        differential_expression,
+        integral_expression,
+        mixed_expression
+    ])()
+}
+
+# Gen full eq
+def random_equation(style="random")
+    if style not in styles:
+        raise ValueError(f"Unknown style: {style}")
+    lhs = styles[style]()
+    rhs = styles[style]()
+    return sp.Eq(lhs, rhs)
+
+# Gen sys of eq
+def random_system(n=3, style="random"):
+    return [random_equation(style) for _ in range(n)]
+
+# Render LaTeX
+def render_latex_to_image(latex_str, filename):
+    plt.figure(figsize=(0.01, 0.01))
+    plt.text(0.5, 0.5, f"${latex_str}$", fontsize=14, ha="center", va="center")
+    plt.axis("off")
+    plt.savefig(filename, bbox_inches="tight", pad_inches=0.2, dpi=200)
+    plt.close()
+
+# Save eq to PDF rendered with math and LaTeX
+def save_to_pdf(equations, filename="equations.pdf")
+    cwd = os.getcwd()
+    filepath = os.path.join(cwd, filename)
+
+    doc = SimpleDocTemplate(filepath)
+    story = []
+    styles_pdf = getSampleStyleSheet()
+    
+    for eq in equations:
+        latex_eq = sp.latex(eq)
+
+        # Render math image
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmpfile:
+            render_latex_to_image(latex_eq, tmpfile.name)
+            story.append(Image(tmpfile.name, width=5 * inch, height=0.8 * inch))
+        
+        # Add LaTeX code as text
+        story.append(Paragraph(f"<b>LaTeX:<b> {latex_eq}", styles_pdf["Normal"]))
+        story.append(Spacer(1, 0.3 * inch))
+
+    doc.build(story)
+    print(f"Equations saved to {filepath}")
+
+if __name__ == "__main__":
+    all_equations = []
+    
+    print("--- Polynomial Equations ---")
+    for _ in range(2):
+        eq = random_equation("polynomial")
+        print(eq)
+        print("LaTeX:", sp.latex(eq))
+        all_equations.append(eq)
+
+    print("\n--- Trigonometric Equations ---")
+    for _ in range(2):
+        eq = random_equation("trigonometric")
+        print(eq)
+        print("LaTeX:", sp.latex(eq))
+        all_equations.append(eq)
+
+    print("\n--- Exponential/Log Equations ---")
+    for _ in range(2):
+        eq = random_equation("exponential_log")
+        print(eq)
+        print("LaTeX:", sp.latex(eq))
+        all_equations.append(eq)
+
+    print("\n--- Rational Equations ---")
+    for _ in range(2):
+        eq = random_equation("rational")
+        print(eq)
+        print("LaTeX:", sp.latex(eq))
+        all_equations.append(eq)
+
+    print("\n--- Nested Transcendental Equations ---")
+    for _ in range(2):
+        eq = random_equation("nested_transcendental")
+        print(eq)
+        print("LaTeX:", sp.latex(eq))
+        all_equations.append(eq)
+
+    print("\n--- Piecewise Equations ---")
+    for _ in range(2):
+        eq = random_equation("piecewise")
+        print(eq)
+        print("LaTeX:", sp.latex(eq))
+        all_equations.append(eq)
+
+    print("\n--- Differential Equations ---")
+    for _ in range(2):
+        eq = random_equation("differential")
+        print(eq)
+        print("LaTeX:", sp.latex(eq))
+        all_equations.append(eq)
+        
+    print("\n--- Integral Equations ---")
+    for _ in range(2):
+        eq = random_equation("integral")
+        print(eq)
+        print("LaTeX:", sp.latex(eq))
+        all_equations.append(eq)
+
+    print("\n--- Mixed Random Equations ---")
+    for _ in range(2):
+        eq = random_equation("random")
+        print(eq)
+        print("LaTeX:", sp.latex(eq))
+        all_equations.append(eq)
+
+    print("\n--- Random System (Mixed) ---")
+    for eq in random_system(3, "random"):
+        print(eq)
+        print("LaTeX:", sp.latex(eq))
+        all_equations.append(eq)
+
+    # Save?
+    choice = (
+        input(
+            "\nDo you want to save these equations as a rendered PDF (with LaTeX code)? (y/n):"
+        )
+        .strip()
+        .lower()
+    )
+    if choice == "y":
+        save_to_pdf(all_equations)

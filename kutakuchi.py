@@ -115,7 +115,7 @@ styles = {
 }
 
 # Gen full eq
-def random_equation(style="random")
+def random_equation(style="random"):
     if style not in styles:
         raise ValueError(f"Unknown style: {style}")
     lhs = styles[style]()
@@ -135,7 +135,7 @@ def render_latex_to_image(latex_str, filename):
     plt.close()
 
 # Save eq to PDF rendered with math and LaTeX
-def save_to_pdf(equations, filename="equations.pdf")
+def save_to_pdf(equations, filename="equations.pdf"):
     cwd = os.getcwd()
     filepath = os.path.join(cwd, filename)
 

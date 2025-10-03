@@ -90,6 +90,37 @@ def integral_expression():
 def mixed_expression():
     return random_expression(max_depth=4)
 
+def parametric_expression():
+    t = sp.symbols('t')
+    x_expr = sp.sin(t) + t**2
+    y_expr = sp.cos(t) * t
+    return (sp.Eq(sp.Function('x')(t), x_expr), sp.Eq(sp.Function('y')(t), y_expr))
+
+def matrix_equation():
+    A = sp.Matrix([[rand_coeff(), rand_coeff()], [rand_coeff(), rand_coeff()]])
+    B = sp.Matrix([[rand_coeff()], [rand_coeff()]])
+    X = sp.Matrix(sp.symbol('x1 x2')).reshape(2, 1)
+    return sp.Eq(A*X, B)
+
+def inequality_expression():
+    var = random.choice(variables)
+    expr = polynomial_expression()
+    return sp.StrictLessThan(expr, rand_coeff()*var + rand_coeff())
+
+def recurrence_expression():
+    n = sp.symbols('n', integer=True)
+    f = sp.Function('f')
+    return sp.Eq(f(n+1), f(n) + n**2)
+
+def limit_expression():
+    var = random.choice(variables)
+    expr = sp.sin(var)/var
+    return sp.Eq(sp.Limit(expr, var, 0), sp.limit(expr, var, 0))
+
+def sum_expression():
+    n = sp.symbols('n', integer=True, positive=True)
+    return sp.Eq(sp.summation(1/n**2, (n, 1, sp.oo)), sp.pi**2/6)
+
 # Map style to func
 styles = {
     "polynomial": polynomial_expression,
